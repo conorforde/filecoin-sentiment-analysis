@@ -5,16 +5,17 @@ import yfinance as yf
 import subprocess
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 sent_analyzer = SentimentIntensityAnalyzer()
+nltk.downloader.download('vader_lexicon')
 
 url = ('https://newsapi.org/v2/everything?'
        'q=Ethereum&'
-       'from=2022-08-25&'
+       'from=2022-09-25&'
        'sortBy=popularity&'
        'apiKey=c2c65159bca849e0a1e18a2e0ff8893c')
 
 response = requests.get(url)
 
-symbol = 'ETH-USD'
+symbol = 'FIL-USD'
 ticker = yf.Ticker(symbol).info
 start = dt.datetime(2020,1,1)
 end = dt.datetime.now()
@@ -23,9 +24,9 @@ today = dt.date.today()
 
 yesterday = today - dt.timedelta(days=1)
 
-eth = yf.download('ETH-USD', yesterday, today)
+fil = yf.download('FIL-USD', yesterday, today)
 
-eth_change=eth['Open'][1]-eth['Open'][0]
+fil_change=fil['Open'][1]-fil['Open'][0]
 today = dt.datetime.now().strftime('%A')
 
 pos_count=0
@@ -51,18 +52,17 @@ pos_percent=(pos_count/total)
 neg_percent=(neg_count/total)
 nuetral_percent=100-(pos_percent+neg_percent)
 
-file_data = symbol + ' => ' + 'pos: ' + str(pos_percent) + ' neg: ' + str(neg_percent) + '\n\n'
+file_data = str(dt.date.today())+ ' change: ' + str(fil_change) + ' ' + symbol + ' => ' + 'pos: ' + str(pos_percent) + ' neg: ' + str(neg_percent) + '\n\n'
 
 f.write(file_data)
 
 f.close()
-
 output = subprocess.check_output(["ipfs", "add", file_name])
 output = output.decode('utf-8')
 output = output.split(' ')[1]
 
 f=open('hashes.txt', 'a')
-f.write(str(today))
+f.write(str(dt.date.today()))
 f.write(' : ')
 f.write(str(output))
 f.write('\n')
